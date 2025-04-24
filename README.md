@@ -25,6 +25,42 @@
 
 ### Решение 1
 
+**1. Создание и запуск Python серверов**
+```
+python3 -m http.server 8888 --bind 0.0.0.0
+python3 -m http.server 9999 --bind 0.0.0.0
+```
+**2. Установка и настройка HAProxy**
+```
+sudo apt update
+sudo apt install haproxy
+sudo nano /etc/haproxy/haproxy.cfg
+```
+**3. Добавляем в haproxy.cfg**
+```
+listen stats  # веб-страница со статистикой
+        bind                    :888
+        mode                    http
+        stats                   enable
+        stats uri               /stats
+        stats refresh           5s
+        stats realm             Haproxy\ Statistics
+
+frontend example  # секция фронтенд
+        mode tcp
+        bind :8088
+        default_backend web_servers
+
+backend web_servers    # секция бэкенд
+        mode tcp
+        balance roundrobin
+        option httpchk
+        http-check send meth GET uri /index.html
+        server s1 127.0.0.1:8888 check
+        server s2 127.0.0.1:9999 check
+```
+**4. Скриншот работы балансировки**
+<img src = "img\img1.jpg" width = 100%>
 
 ---
 
