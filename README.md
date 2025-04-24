@@ -61,6 +61,8 @@ backend web_servers    # секция бэкенд
 ```
 **4. Скриншот работы балансировки**
 <img src = "img\img1.jpg" width = 100%>
+**5. Конфиг HAProxy**
+<a href="haproxy1.cfg">Конфиг к заданию 1</a>
 
 ---
 
@@ -73,4 +75,30 @@ backend web_servers    # секция бэкенд
 
 ### Решение 2
 
+**1. Создание и запуск Python серверов**
+```
+python3 -m http.server 7777 --bind 0.0.0.0
+python3 -m http.server 8888 --bind 0.0.0.0
+python3 -m http.server 9999 --bind 0.0.0.0
+```
+**2. Вносим изменения в haproxy.cfg**
+```
+frontend example  # секция фронтенд
+        mode http
+        bind :8088
+        acl ACL_example.com hdr(host) -i example.com
+        use_backend web_servers if ACL_example.com
 
+backend web_servers    # секция бэкенд
+        mode http
+        balance roundrobin
+        option httpchk
+        http-check send meth GET uri /index.html
+        server s1 127.0.0.1:7777 weight 2 check
+        server s2 127.0.0.1:8888 weight 3 check
+        server s3 127.0.0.1:9999 weight 4 check
+```
+**3. Скриншот работы балансировки**
+<img src = "img\img2.jpg" width = 100%>
+**4. Конфиг HAProxy**
+<a href="haproxy2.cfg">Конфиг к заданию 2</a>
